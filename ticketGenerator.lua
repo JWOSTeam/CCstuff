@@ -20,11 +20,12 @@ end
 
 local function main()
     while true do
+        term.clear()
+        term.setCursorPos(1, 1)
         print("Please insert a disk to receive your ticket.")
+
         -- Wait until a disk is inserted
-        while not disk.isPresent(diskSide) do
-            sleep(1)  -- Check every second
-        end
+        os.pullEvent("disk")
 
         local ticketID = generateUniqueID()
         writeIDToDisk(ticketID)
