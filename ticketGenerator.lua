@@ -19,15 +19,22 @@ local function writeIDToDisk(id)
 end
 
 local function main()
-    if not disk.isPresent(diskSide) then
-        print("Please insert a disk.")
-        return
-    end
+    while true do
+        print("Please insert a disk to receive your ticket.")
+        
+        -- Wait until a disk is inserted
+        while not disk.isPresent(diskSide) do
+            sleep(1)
+        end
 
-    local ticketID = generateUniqueID()
-    writeIDToDisk(ticketID)
-    disk.eject(diskSide)
-    print("Disk ejected. Ticket ID: " .. ticketID)
+        local ticketID = generateUniqueID()
+        writeIDToDisk(ticketID)
+        disk.eject(diskSide)
+        print("Disk ejected. Ticket ID: " .. ticketID)
+        
+        -- Wait a moment before restarting the loop
+        sleep(2)
+    end
 end
 
 main()
