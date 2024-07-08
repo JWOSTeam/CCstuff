@@ -9,7 +9,14 @@ local function generateTicket()
 
     -- Wait for a disk to be inserted
     print("Insert a floppy disk to write a train ticket.")
-    while not peripheral.call(driveSide, "isDiskPresent") do
+    while true do
+        if peripheral.isPresent(driveSide) and peripheral.getType(driveSide) == "drive" then
+            if peripheral.call(driveSide, "isDiskPresent") then
+                break
+            end
+        else
+            print("Disk drive not found on side: " .. driveSide)
+        end
         sleep(1)
     end
 
