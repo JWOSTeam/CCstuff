@@ -39,29 +39,40 @@ end
 
 local function openGate()
     redstone.setOutput(gateSide, true)
-    sleep(3)  -- Adjust the duration the gate stays open
+    sleep(10)  -- Gate open duration in seconds
     redstone.setOutput(gateSide, false)
 end
 
 local function main()
-    if not disk.isPresent(diskSide) then
-        print("Please insert a disk.")
-        return
-    end
+    while true do
+        term.clear()
+        term.setCursorPos(1, 1)
+        print("Please insert a ticket disk.")
 
-    local ticketID = readIDFromDisk()
-    if ticketID then
-        if isIDUsed(ticketID) then
-            print("Ticket ID already used.")
-            disk.eject(diskSide)
+        -- Wait until a disk is inserted
+        os.pullEvent("disk")
+
+        local ticketID = readIDFromDisk()
+        if ticketID then
+            if isIDUsed(ticketID) then
+                print("This ticket has already been used.")
+                disk.eject(diskSide)
+            else
+                print("Ticket is valid. Opening gate!")
+                addIDToDatabase(ticketID)
+                openGate()
+                disk.eject(diskSide)
+            end
         else
-            print("Ticket ID is valid.")
-            addIDToDatabase(ticketID)
-            openGate()
-            disk.eject(diskSide)
+            print("Failed to read ticket ID from disk.")
         end
-    else
-        print("Failed to read ticket ID from disk.")
+
+        -- Wait until the disk is removed before restarting
+        while disk.isPresent(diskSide) do
+            sleep(1)  -- Check every second
+        end
+
+        sleep(1)  -- Short delay before restarting the loop
     end
 end
 
