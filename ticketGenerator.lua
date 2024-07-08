@@ -11,7 +11,7 @@ local function generateTicket()
     print("Insert a floppy disk to write a train ticket.")
     while true do
         if peripheral.isPresent(driveSide) and peripheral.getType(driveSide) == "drive" then
-            if peripheral.call(driveSide, "isDiskPresent") then
+            if disk.isPresent(driveSide) then
                 break
             end
         else
@@ -20,12 +20,12 @@ local function generateTicket()
         sleep(1)
     end
 
-    local mountPath = peripheral.call(driveSide, "getMountPath")
+    local mountPath = disk.getMountPath(driveSide)
     local file = fs.open(mountPath .. "/ticket.txt", "w")
     file.write(textutils.serialize(ticketData))
     file.close()
 
-    peripheral.call(driveSide, "ejectDisk")
+    disk.eject(driveSide)
     print("Ticket written and ejected.")
 end
 
