@@ -1,34 +1,33 @@
--- ticketGenerator.lua
-local driveSide = "left" -- Adjust according to your setup
+-- ticket_generator.lua
+local diskSide = "right"  -- Adjust based on where your disk drive is located
+local ticketIDFile = "ticket_id.txt"
 
-local function generateTicket()
-    local ticketData = {
-        valid = true,
-        id = math.random(100000, 999999)
-    }
+local function generateUniqueID()
+    return tostring(math.random(1000000, 9999999))
+end
 
-    -- Wait for a disk to be inserted
-    print("Insert a floppy disk to write a train ticket.")
-    while true do
-        if peripheral.isPresent(driveSide) and peripheral.getType(driveSide) == "drive" then
-            if disk.isPresent(driveSide) then
-                break
-            end
-        else
-            print("Disk drive not found on side: " .. driveSide)
-        end
-        sleep(1)
+local function writeIDToDisk(id)
+    local mountPath = disk.getMountPath(diskSide)
+    if mountPath then
+        local file = fs.open(fs.combine(mountPath, ticketIDFile), "w")
+        file.write(id)
+        file.close()
+        print("Ticket ID written to disk: " .. id)
+    else
+        print("No disk present on " .. diskSide)
+    end
+end
+
+local function main()
+    if not disk.isPresent(diskSide) then
+        print("Please insert a disk.")
+        return
     end
 
-    local mountPath = disk.getMountPath(driveSide)
-    local file = fs.open(mountPath .. "/ticket.txt", "w")
-    file.write(textutils.serialize(ticketData))
-    file.close()
-
-    disk.eject(driveSide)
-    print("Ticket written and ejected.")
+    local ticketID = generateUniqueID()
+    writeIDToDisk(ticketID)
+    disk.eject(diskSide)
+    print("Disk ejected. Ticket ID: " .. ticketID)
 end
 
-while true do
-    generateTicket()
-end
+main()
