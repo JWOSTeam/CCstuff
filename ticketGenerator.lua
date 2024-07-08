@@ -21,19 +21,22 @@ end
 local function main()
     while true do
         print("Please insert a disk to receive your ticket.")
-        
         -- Wait until a disk is inserted
         while not disk.isPresent(diskSide) do
-            sleep(1)
+            sleep(1)  -- Check every second
         end
 
         local ticketID = generateUniqueID()
         writeIDToDisk(ticketID)
         disk.eject(diskSide)
         print("Disk ejected. Ticket ID: " .. ticketID)
-        
-        -- Wait a moment before restarting the loop
-        sleep(2)
+
+        -- Wait until the disk is removed before restarting
+        while disk.isPresent(diskSide) do
+            sleep(1)  -- Check every second
+        end
+
+        sleep(1)  -- Short delay before restarting the loop
     end
 end
 
