@@ -8,7 +8,8 @@ local function wipeDisk()
         for _, file in ipairs(files) do
             fs.delete(fs.combine(mountPath, file))
         end
-        print("Disk wiped successfully.")
+        disk.setLabel(diskSide, "")
+        print("Disk wiped and label reset successfully.")
     else
         print("No disk present on " .. diskSide)
     end
