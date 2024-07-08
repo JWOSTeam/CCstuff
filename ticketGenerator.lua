@@ -43,10 +43,11 @@ local function main()
         if isDiskEmpty() then
             local ticketID = generateUniqueID()
             writeIDToDisk(ticketID)
+            disk.setLabel(diskSide, "Subway Ticket")
             disk.eject(diskSide)
             print("Disk ejected. Ticket ID: " .. ticketID)
         else
-            print("This ticket has already has data on it! Please get a new one if it has been used already.")
+            print("The disk already contains data. Please use an empty disk.")
             disk.eject(diskSide)
         end
 
@@ -55,7 +56,7 @@ local function main()
             sleep(1)  -- Check every second
         end
 
-        sleep(3)  -- Short delay before restarting the loop
+        sleep(4)  -- Short delay before restarting the loop
     end
 end
 
