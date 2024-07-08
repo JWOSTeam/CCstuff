@@ -64,7 +64,7 @@ local function main()
                 disk.eject(diskSide)
             end
         else
-            print("Failed to read ticket ID from disk.")
+            print("Failed to read ticket ID from disk. Did you stamp it first?")
         end
 
         -- Wait until the disk is removed before restarting
