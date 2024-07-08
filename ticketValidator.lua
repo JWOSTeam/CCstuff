@@ -7,10 +7,15 @@ local databaseFile = "ticket_database.txt"
 local function readIDFromDisk()
     local mountPath = disk.getMountPath(diskSide)
     if mountPath then
-        local file = fs.open(fs.combine(mountPath, ticketIDFile), "r")
-        local id = file.readAll()
-        file.close()
-        return id
+        local filePath = fs.combine(mountPath, ticketIDFile)
+        if fs.exists(filePath) then
+            local file = fs.open(filePath, "r")
+            local id = file.readAll()
+            file.close()
+            return id
+        else
+            return nil
+        end
     end
     return nil
 end
@@ -47,7 +52,7 @@ local function main()
     while true do
         term.clear()
         term.setCursorPos(1, 1)
-        print("Please insert a ticket disk.")
+        print("Please insert your ticket.")
 
         -- Wait until a disk is inserted
         os.pullEvent("disk")
@@ -55,17 +60,18 @@ local function main()
         local ticketID = readIDFromDisk()
         if ticketID then
             if isIDUsed(ticketID) then
-                print("Ticket ID already used.")
+                print("This ticket has already been used.")
                 disk.eject(diskSide)
             else
-                print("Ticket ID is valid.")
+                print("Ticket accepted. Opening gate.")
                 addIDToDatabase(ticketID)
                 openGate()
                 disk.setLabel(diskSide, "Used Subway Ticket")
                 disk.eject(diskSide)
             end
         else
-            print("Failed to read ticket ID from disk.")
+            print("Failed to read ticket ID from disk. Did you stamp it first?")
+            disk.eject(diskSide)
         end
 
         -- Wait until the disk is removed before restarting
