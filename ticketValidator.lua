@@ -72,7 +72,7 @@ local function main()
             sleep(1)  -- Check every second
         end
 
-        sleep(1)  -- Short delay before restarting the loop
+        sleep(3)  -- Short delay before restarting the loop
     end
 end
 
