@@ -1,6 +1,6 @@
 -- ticket_validator.lua
-local diskSide = "bottom"  -- Adjust based on where your disk drive is located
-local gateSide = "right"   -- Adjust based on where your redstone-controlled gate is located
+local diskSide = "right"  -- Adjust based on where your disk drive is located
+local gateSide = "left"   -- Adjust based on where your redstone-controlled gate is located
 local ticketIDFile = "ticket_id.txt"
 local databaseFile = "ticket_database.txt"
 
@@ -59,7 +59,11 @@ local function main()
 
         local ticketID = readIDFromDisk()
         if ticketID then
-            if isIDUsed(ticketID) then
+            if ticketID == "420" then
+                print("Staff card accepted. Access granted.")
+                openGate()
+                disk.eject(diskSide)
+            elseif isIDUsed(ticketID) then
                 print("This ticket has already been used.")
                 disk.eject(diskSide)
             else
@@ -70,7 +74,7 @@ local function main()
                 disk.eject(diskSide)
             end
         else
-            print("Failed to read ticket ID from disk. Did you stamp it first?")
+            print("Failed to read ticket. Please ensure you are using a new, stamped ticket.")
             disk.eject(diskSide)
         end
 
@@ -79,7 +83,7 @@ local function main()
             sleep(1)  -- Check every second
         end
 
-        sleep(4)  -- Short delay before restarting the loop
+        sleep(3)  -- Short delay before restarting the loop
     end
 end
 
