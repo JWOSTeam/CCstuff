@@ -52,7 +52,7 @@ local function main()
     while true do
         term.clear()
         term.setCursorPos(1, 1)
-        print("Please insert your ticket.")
+        print("Please insert a ticket disk.")
 
         -- Wait until a disk is inserted
         os.pullEvent("disk")
@@ -61,20 +61,20 @@ local function main()
         if ticketID then
             if ticketID == "420" then
                 print("Staff card accepted. Access granted.")
-                openGate()
                 disk.eject(diskSide)
+                openGate()
             elseif isIDUsed(ticketID) then
-                print("This ticket has already been used.")
+                print("Ticket ID already used.")
                 disk.eject(diskSide)
             else
-                print("Ticket accepted. Opening gate.")
+                print("Ticket ID is valid.")
                 addIDToDatabase(ticketID)
-                openGate()
                 disk.setLabel(diskSide, "Used Subway Ticket")
                 disk.eject(diskSide)
+                openGate()
             end
         else
-            print("Failed to read ticket. Please ensure you are using a new, stamped ticket.")
+            print("Failed to read ticket ID from disk. The disk might be empty.")
             disk.eject(diskSide)
         end
 
@@ -83,7 +83,7 @@ local function main()
             sleep(1)  -- Check every second
         end
 
-        sleep(3)  -- Short delay before restarting the loop
+        sleep(1)  -- Short delay before restarting the loop
     end
 end
 
