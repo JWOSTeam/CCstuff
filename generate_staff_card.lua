@@ -8,6 +8,7 @@ local function writeStaffIDToDisk()
         local file = fs.open(fs.combine(mountPath, ticketIDFile), "w")
         file.write("420")
         file.close()
+        disk.setLabel(diskSide, "Staff Subway Pass")
         print("Staff ID 420 written to disk.")
     else
         print("No disk present on " .. diskSide)
@@ -17,7 +18,7 @@ end
 local function main()
     term.clear()
     term.setCursorPos(1, 1)
-    print("Please insert a disk to receive the staff ID.")
+    print("Please insert a disk to receive the staff pass.")
 
     -- Wait until a disk is inserted
     os.pullEvent("disk")
