@@ -1,6 +1,6 @@
 -- ticket_validator.lua
-local diskSide = "right"  -- Adjust based on where your disk drive is located
-local gateSide = "left"   -- Adjust based on where your redstone-controlled gate is located
+local diskSide = "bottom"  -- Adjust based on where your disk drive is located
+local gateSide = "right"   -- Adjust based on where your redstone-controlled gate is located
 local ticketIDFile = "ticket_id.txt"
 local databaseFile = "ticket_database.txt"
 
