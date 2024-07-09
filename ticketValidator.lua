@@ -60,21 +60,21 @@ local function main()
         local ticketID = readIDFromDisk()
         if ticketID then
             if ticketID == "420" then
-                print("Staff card accepted. Access granted.")
+                print("Staff pass accepted. Access granted.")
                 disk.eject(diskSide)
                 openGate()
             elseif isIDUsed(ticketID) then
-                print("Ticket ID already used.")
+                print("This ticket has already been used.")
                 disk.eject(diskSide)
             else
-                print("Ticket ID is valid.")
+                print("Ticket accepted. Opening gate.")
                 addIDToDatabase(ticketID)
                 disk.setLabel(diskSide, "Used Subway Ticket")
                 disk.eject(diskSide)
                 openGate()
             end
         else
-            print("Failed to read ticket ID from disk. The disk might be empty.")
+            print("Failed to read ticket. Please ensure you are using a newly stamped ticket.")
             disk.eject(diskSide)
         end
 
@@ -83,7 +83,7 @@ local function main()
             sleep(1)  -- Check every second
         end
 
-        sleep(1)  -- Short delay before restarting the loop
+        sleep(3)  -- Short delay before restarting the loop
     end
 end
 
