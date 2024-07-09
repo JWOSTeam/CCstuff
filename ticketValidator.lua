@@ -60,7 +60,7 @@ local function main()
         local ticketID = readIDFromDisk()
         if ticketID then
             if ticketID == "420" then
-                print("Staff pass accepted. Access granted.")
+                print("Lifetime pass accepted. Access granted.")
                 disk.eject(diskSide)
                 openGate()
             elseif isIDUsed(ticketID) then
