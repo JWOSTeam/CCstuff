@@ -3,7 +3,7 @@
 local itemDatabaseFile = "items.txt"
 local ordersFile = "orders.txt"
 local rednetActive = false
-local rednetSide = "top"
+local rednetSide = "right"
 
 -- Function to load items from file
 local function loadItems()
@@ -95,8 +95,10 @@ local function checkOrders()
         print("No orders found.")
     else
         for i, order in ipairs(orders) do
-            print("Order #" .. i .. ": Customer: " .. order.customer)
-            print("Item: " .. order.item .. " - Quantity: " .. order.quantity)
+            print("Order #" .. i .. ":")
+            print("Customer: " .. order.customer)
+            print("Item: " .. order.item)
+            print("Quantity: " .. order.quantity)
         end
     end
 end
@@ -115,17 +117,19 @@ end
 
 -- Function to handle incoming orders and requests
 local function handleOrders()
-    while rednetActive do
-        local id, message = rednet.receive(1)  -- Use a timeout to periodically check rednetActive
-        if message then
-            if message == "REQUEST_ITEM_LIST" then
-                local items = loadItems()
-                rednet.send(id, items)
-            elseif type(message) == "table" then
-                local orders = loadOrders()
-                table.insert(orders, message)
-                saveOrders(orders)
-                print("Order received from " .. message.customer)
+    while true do
+        if rednetActive then
+            local id, message = rednet.receive(1)  -- Use a timeout to periodically check rednetActive
+            if message then
+                if message == "REQUEST_ITEM_LIST" then
+                    local items = loadItems()
+                    rednet.send(id, items)
+                elseif type(message) == "table" then
+                    local orders = loadOrders()
+                    table.insert(orders, message)
+                    saveOrders(orders)
+                    print("Order received from " .. message.customer)
+                end
             end
         end
     end
@@ -161,7 +165,7 @@ local function handleUserInput()
             if rednetActive then
                 toggleRednet()
             end
-            return
+            break
         else
             print("Unknown command. Please try again.")
         end
@@ -170,7 +174,7 @@ end
 
 -- Main program loop
 local function main()
-    parallel.waitForAny(handleUserInput, handleOrders)
+    parallel.waitForAll(handleUserInput, handleOrders)
 end
 
 main()
