@@ -6,12 +6,14 @@ local itemList = {}
 -- Function to request item list from the server
 local function requestItemList()
     rednet.send(serverID, "REQUEST_ITEM_LIST")
-    local id, message = rednet.receive()
+    local id, message = rednet.receive(5)  -- Wait for 5 seconds for a response
     if id == serverID and type(message) == "table" then
         itemList = message
+        return true
     else
         print("Failed to retrieve item list.")
         itemList = {}
+        return false
     end
 end
 
@@ -62,9 +64,9 @@ end
 -- Main program loop
 local function main()
     rednet.open("right")
+    print("Requesting item list from the server...")
 
-    requestItemList()
-    if displayItems() then
+    if requestItemList() and displayItems() then
         placeOrder()
     end
 
