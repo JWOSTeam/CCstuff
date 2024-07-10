@@ -3,6 +3,7 @@
 local itemDatabaseFile = "items.txt"
 local ordersFile = "orders.txt"
 local rednetActive = false
+local stopHandlingOrders = false
 
 -- Function to load items from file
 local function loadItems()
@@ -45,13 +46,20 @@ end
 -- Function to toggle Rednet connection
 local function toggleRednet()
     if rednetActive then
-        rednet.close("top")
+        stopHandlingOrders = true
+        rednet.close("right")
         rednetActive = false
         print("Rednet connection stopped.")
     else
-        rednet.open("top")
+        stopHandlingOrders = false
+        rednet.open("right")
         rednetActive = true
         print("Rednet connection started.")
+        parallel.waitForAny(handleOrders, function()
+            while not stopHandlingOrders do
+                sleep(0.1)
+            end
+        end)
     end
 end
 
@@ -90,35 +98,39 @@ local function checkOrders()
     end
 end
 
+-- Function to check stock
+local function checkStock()
+    local items = loadItems()
+    if next(items) == nil then
+        print("No items in stock.")
+    else
+        for name, price in pairs(items) do
+            print("Item: " .. name .. " - Price: " .. price)
+        end
+    end
+end
+
 -- Function to handle incoming orders
 local function handleOrders()
-    while true do
-        local id, message = rednet.receive()
-        local orders = loadOrders()
-        table.insert(orders, message)
-        saveOrders(orders)
-        print("Order received from " .. message.customer)
+    while not stopHandlingOrders do
+        local id, message = rednet.receive(1)
+        if id then
+            local orders = loadOrders()
+            table.insert(orders, message)
+            saveOrders(orders)
+            print("Order received from " .. message.customer)
+        end
     end
 end
 
 -- Main program loop
 local function main()
     while true do
-        print("Commands: toggle, add, remove, check, exit")
+        print("Commands: toggle, add, remove, check, stock, exit")
         local command = read()
 
         if command == "toggle" then
             toggleRednet()
-            if rednetActive then
-                parallel.waitForAny(handleOrders, function()
-                    while true do
-                        if read() == "toggle" then
-                            toggleRednet()
-                            break
-                        end
-                    end
-                end)
-            end
         elseif command == "add" then
             print("Enter item name:")
             local name = read()
@@ -131,6 +143,8 @@ local function main()
             removeItem(name)
         elseif command == "check" then
             checkOrders()
+        elseif command == "stock" then
+            checkStock()
         elseif command == "exit" then
             if rednetActive then
                 toggleRednet()
