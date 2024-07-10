@@ -36,11 +36,11 @@ local function placeOrder()
     print("Enter your name/alias:")
     local customerName = read()
 
-    print("Enter the name of the item you want to order:")
+    print("Enter the name of the item you want to order (case sensitive):")
     local itemName = read()
 
     if not itemList[itemName] then
-        print("Item not found.")
+        print("Item not found. Run the program again to try again.")
         return
     end
 
