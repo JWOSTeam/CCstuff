@@ -43,18 +43,6 @@ local function saveOrders(orders)
     file.close()
 end
 
--- Function to clear stock
-local function clearStock()
-    saveItems({})
-    print("All items have been cleared.")
-end
-
--- Function to clear orders
-local function clearOrders()
-    saveOrders({})
-    print("All orders have been cleared.")
-end
-
 -- Function to toggle Rednet connection
 local function toggleRednet()
     if rednetActive then
@@ -117,28 +105,26 @@ end
 
 -- Function to handle incoming orders and requests
 local function handleOrders()
-    while true do
-        if rednetActive then
-            local id, message = rednet.receive(1)  -- Use a timeout to periodically check rednetActive
-            if message then
-                if message == "REQUEST_ITEM_LIST" then
-                    local items = loadItems()
-                    rednet.send(id, items)
-                elseif type(message) == "table" then
-                    local orders = loadOrders()
-                    table.insert(orders, message)
-                    saveOrders(orders)
-                    print("Order received from " .. message.customer)
-                end
+    while rednetActive do
+        local id, message = rednet.receive(1)  -- Use a timeout to periodically check rednetActive
+        if message then
+            if message == "REQUEST_ITEM_LIST" then
+                local items = loadItems()
+                rednet.send(id, items)
+            elseif type(message) == "table" then
+                local orders = loadOrders()
+                table.insert(orders, message)
+                saveOrders(orders)
+                print("Order received from " .. message.customer)
             end
         end
     end
 end
 
--- Function to handle user input
-local function handleUserInput()
+-- Main program loop
+local function main()
     while true do
-        print("Commands: toggle, add, remove, orders, stock, clearstock, clearorders, exit")
+        print("Commands: toggle, add, remove, orders, stock, exit")
         local command = read()
 
         if command == "toggle" then
@@ -157,10 +143,6 @@ local function handleUserInput()
             checkOrders()
         elseif command == "stock" then
             checkStock()
-        elseif command == "clearstock" then
-            clearStock()
-        elseif command == "clearorders" then
-            clearOrders()
         elseif command == "exit" then
             if rednetActive then
                 toggleRednet()
@@ -169,12 +151,11 @@ local function handleUserInput()
         else
             print("Unknown command. Please try again.")
         end
-    end
-end
 
--- Main program loop
-local function main()
-    parallel.waitForAll(handleUserInput, handleOrders)
+        if rednetActive then
+            handleOrders()
+        end
+    end
 end
 
 main()
