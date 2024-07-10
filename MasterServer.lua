@@ -3,7 +3,7 @@
 local itemDatabaseFile = "items.txt"
 local ordersFile = "orders.txt"
 local rednetActive = false
-local rednetSide = "top"
+local rednetSide = "right"
 
 -- Function to load items from file
 local function loadItems()
@@ -136,11 +136,54 @@ end
 -- Main program loop
 local function main()
     while true do
-        print("Commands: toggle, add, remove, orders, stock, clearorders, clearstock, exit")
+        print("Commands: toggle, add, remove, orders, stock, clearstock, clearorders, exit")
         local command = read()
 
         if command == "toggle" then
             toggleRednet()
+            if rednetActive then
+                parallel.waitForAny(
+                    function()
+                        while rednetActive do
+                            handleOrders()
+                        end
+                    end,
+                    function()
+                        while true do
+                            local command = read()
+                            if command == "toggle" then
+                                toggleRednet()
+                                break
+                            elseif command == "add" then
+                                print("Enter item name:")
+                                local name = read()
+                                print("Enter item price:")
+                                local price = tonumber(read())
+                                addItem(name, price)
+                            elseif command == "remove" then
+                                print("Enter item name to remove:")
+                                local name = read()
+                                removeItem(name)
+                            elseif command == "orders" then
+                                checkOrders()
+                            elseif command == "stock" then
+                                checkStock()
+                            elseif command == "clearstock" then
+                                clearStock()
+                            elseif command == "clearorders" then
+                                clearOrders()
+                            elseif command == "exit" then
+                                if rednetActive then
+                                    toggleRednet()
+                                end
+                                return
+                            else
+                                print("Unknown command. Please try again.")
+                            end
+                        end
+                    end
+                )
+            end
         elseif command == "add" then
             print("Enter item name:")
             local name = read()
@@ -166,10 +209,6 @@ local function main()
             break
         else
             print("Unknown command. Please try again.")
-        end
-
-        if rednetActive then
-            handleOrders()
         end
     end
 end
