@@ -6,12 +6,12 @@ local itemList = {}
 -- Function to request item list from the server
 local function requestItemList()
     rednet.send(serverID, "REQUEST_ITEM_LIST")
-    local id, message = rednet.receive(5)  -- Wait for 5 seconds for a response
+    local id, message = rednet.receive(10)  -- Wait for 10 seconds for a response
     if id == serverID and type(message) == "table" then
         itemList = message
         return true
     else
-        print("Failed to retrieve item list.")
+        print("Request timeout - unable to retrieve the item list. The master server may be down or disconnected. Terminating.")
         itemList = {}
         return false
     end
