@@ -43,6 +43,18 @@ local function saveOrders(orders)
     file.close()
 end
 
+-- Function to clear stock
+local function clearStock()
+    saveItems({})
+    print("All items have been cleared.")
+end
+
+-- Function to clear orders
+local function clearOrders()
+    saveOrders({})
+    print("All orders have been cleared.")
+end
+
 -- Function to toggle Rednet connection
 local function toggleRednet()
     if rednetActive then
@@ -107,14 +119,16 @@ end
 local function handleOrders()
     while rednetActive do
         local id, message = rednet.receive(1)  -- Use a timeout to periodically check rednetActive
-        if message == "REQUEST_ITEM_LIST" then
-            local items = loadItems()
-            rednet.send(id, items)
-        elseif type(message) == "table" then
-            local orders = loadOrders()
-            table.insert(orders, message)
-            saveOrders(orders)
-            print("Order received from " .. message.customer)
+        if message then
+            if message == "REQUEST_ITEM_LIST" then
+                local items = loadItems()
+                rednet.send(id, items)
+            elseif type(message) == "table" then
+                local orders = loadOrders()
+                table.insert(orders, message)
+                saveOrders(orders)
+                print("Order received from " .. message.customer)
+            end
         end
     end
 end
@@ -122,43 +136,11 @@ end
 -- Main program loop
 local function main()
     while true do
-        print("Commands: toggle, add, remove, check, stock, exit")
+        print("Commands: toggle, add, remove, orders, stock, clearorders, clearstock, exit")
         local command = read()
 
         if command == "toggle" then
             toggleRednet()
-            if rednetActive then
-                parallel.waitForAny(handleOrders, function()
-                    while true do
-                        local command = read()
-                        if command == "toggle" then
-                            toggleRednet()
-                            break
-                        elseif command == "add" then
-                            print("Enter item name:")
-                            local name = read()
-                            print("Enter item price:")
-                            local price = tonumber(read())
-                            addItem(name, price)
-                        elseif command == "remove" then
-                            print("Enter item name to remove:")
-                            local name = read()
-                            removeItem(name)
-                        elseif command == "check" then
-                            checkOrders()
-                        elseif command == "stock" then
-                            checkStock()
-                        elseif command == "exit" then
-                            if rednetActive then
-                                toggleRednet()
-                            end
-                            return
-                        else
-                            print("Unknown command. Please try again.")
-                        end
-                    end
-                end)
-            end
         elseif command == "add" then
             print("Enter item name:")
             local name = read()
@@ -169,10 +151,14 @@ local function main()
             print("Enter item name to remove:")
             local name = read()
             removeItem(name)
-        elseif command == "check" then
+        elseif command == "orders" then
             checkOrders()
         elseif command == "stock" then
             checkStock()
+        elseif command == "clearstock" then
+            clearStock()
+        elseif command == "clearorders" then
+            clearOrders()
         elseif command == "exit" then
             if rednetActive then
                 toggleRednet()
@@ -180,6 +166,10 @@ local function main()
             break
         else
             print("Unknown command. Please try again.")
+        end
+
+        if rednetActive then
+            handleOrders()
         end
     end
 end
