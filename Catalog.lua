@@ -63,14 +63,14 @@ end
 
 -- Main program loop
 local function main()
-    rednet.open("right")
+    rednet.open("top")
     print("Requesting item list from the server...")
 
     if requestItemList() and displayItems() then
         placeOrder()
     end
 
-    rednet.close("right")
+    rednet.close("top")
 end
 
 main()
