@@ -3,7 +3,7 @@
 local itemDatabaseFile = "items.txt"
 local ordersFile = "orders.txt"
 local rednetActive = false
-local rednetSide = "right"
+local rednetSide = "top"
 
 -- Function to load items from file
 local function loadItems()
