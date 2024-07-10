@@ -102,16 +102,22 @@ local function checkStock()
     end
 end
 
--- Function to handle incoming orders
+-- Function to handle incoming orders and requests
 local function handleOrders()
     while true do
         local id, message = rednet.receive()
-        local orders = loadOrders()
-        table.insert(orders, message)
-        saveOrders(orders)
-        print("Order received from " .. message.customer)
+        if message == "REQUEST_ITEM_LIST" then
+            local items = loadItems()
+            rednet.send(id, items)
+        else
+            local orders = loadOrders()
+            table.insert(orders, message)
+            saveOrders(orders)
+            print("Order received from " .. message.customer)
+        end
     end
 end
+
 
 -- Main program loop
 local function main()
