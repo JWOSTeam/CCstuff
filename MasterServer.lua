@@ -45,11 +45,11 @@ end
 -- Function to toggle Rednet connection
 local function toggleRednet()
     if rednetActive then
-        rednet.close("right")
+        rednet.close("top")
         rednetActive = false
         print("Rednet connection stopped.")
     else
-        rednet.open("right")
+        rednet.open("top")
         rednetActive = true
         print("Rednet connection started.")
     end
