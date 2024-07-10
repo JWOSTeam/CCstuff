@@ -3,7 +3,6 @@
 local itemDatabaseFile = "items.txt"
 local ordersFile = "orders.txt"
 local rednetActive = false
-local stopHandlingOrders = false
 
 -- Function to load items from file
 local function loadItems()
@@ -46,20 +45,13 @@ end
 -- Function to toggle Rednet connection
 local function toggleRednet()
     if rednetActive then
-        stopHandlingOrders = true
-        rednet.close("top")
+        rednet.close("right")
         rednetActive = false
         print("Rednet connection stopped.")
     else
-        stopHandlingOrders = false
-        rednet.open("top")
+        rednet.open("right")
         rednetActive = true
         print("Rednet connection started.")
-        parallel.waitForAny(handleOrders, function()
-            while not stopHandlingOrders do
-                sleep(0.1)
-            end
-        end)
     end
 end
 
@@ -112,14 +104,12 @@ end
 
 -- Function to handle incoming orders
 local function handleOrders()
-    while not stopHandlingOrders do
-        local id, message = rednet.receive(1)
-        if id then
-            local orders = loadOrders()
-            table.insert(orders, message)
-            saveOrders(orders)
-            print("Order received from " .. message.customer)
-        end
+    while true do
+        local id, message = rednet.receive()
+        local orders = loadOrders()
+        table.insert(orders, message)
+        saveOrders(orders)
+        print("Order received from " .. message.customer)
     end
 end
 
@@ -131,6 +121,16 @@ local function main()
 
         if command == "toggle" then
             toggleRednet()
+            if rednetActive then
+                parallel.waitForAny(handleOrders, function()
+                    while true do
+                        if read() == "toggle" then
+                            toggleRednet()
+                            break
+                        end
+                    end
+                end)
+            end
         elseif command == "add" then
             print("Enter item name:")
             local name = read()
@@ -155,5 +155,7 @@ local function main()
         end
     end
 end
+
+main()
 
 main()
