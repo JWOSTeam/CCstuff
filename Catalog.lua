@@ -1,6 +1,6 @@
 -- Client Program
 
-local serverID = 1  -- Set the ID of the master server
+local serverID = 22  -- Set the ID of the master server
 local itemList = {}
 
 -- Function to request item list from the server
