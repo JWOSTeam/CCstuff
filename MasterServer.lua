@@ -3,7 +3,7 @@
 local itemDatabaseFile = "items.txt"
 local ordersFile = "orders.txt"
 local rednetActive = false
-local rednetSide = "top"
+local rednetSide = "right"
 
 -- Function to load items from file
 local function loadItems()
@@ -121,12 +121,12 @@ local function handleOrders()
     end
 end
 
--- Main program loop
-local function main()
+-- Function to handle user input
+local function handleUserInput()
     while true do
-        print("Commands: toggle, add, remove, orders, stock, exit")
+        print("Commands: toggle, add, remove, check, stock, exit")
         local command = read()
-
+        
         if command == "toggle" then
             toggleRednet()
         elseif command == "add" then
@@ -139,7 +139,7 @@ local function main()
             print("Enter item name to remove:")
             local name = read()
             removeItem(name)
-        elseif command == "orders" then
+        elseif command == "check" then
             checkOrders()
         elseif command == "stock" then
             checkStock()
@@ -151,9 +151,16 @@ local function main()
         else
             print("Unknown command. Please try again.")
         end
+    end
+end
 
+-- Main program loop
+local function main()
+    while true do
         if rednetActive then
-            handleOrders()
+            parallel.waitForAny(handleOrders, handleUserInput)
+        else
+            handleUserInput()
         end
     end
 end
