@@ -3,6 +3,7 @@
 local itemDatabaseFile = "items.txt"
 local ordersFile = "orders.txt"
 local rednetActive = false
+local rednetSide = "right"
 
 -- Function to load items from file
 local function loadItems()
@@ -45,11 +46,11 @@ end
 -- Function to toggle Rednet connection
 local function toggleRednet()
     if rednetActive then
-        rednet.close("right")
+        rednet.close(rednetSide)
         rednetActive = false
         print("Rednet connection stopped.")
     else
-        rednet.open("right")
+        rednet.open(rednetSide)
         rednetActive = true
         print("Rednet connection started.")
     end
@@ -104,12 +105,12 @@ end
 
 -- Function to handle incoming orders and requests
 local function handleOrders()
-    while true do
-        local id, message = rednet.receive()
+    while rednetActive do
+        local id, message = rednet.receive(1)  -- Use a timeout to periodically check rednetActive
         if message == "REQUEST_ITEM_LIST" then
             local items = loadItems()
             rednet.send(id, items)
-        else
+        elseif type(message) == "table" then
             local orders = loadOrders()
             table.insert(orders, message)
             saveOrders(orders)
@@ -126,16 +127,6 @@ local function main()
 
         if command == "toggle" then
             toggleRednet()
-            if rednetActive then
-                parallel.waitForAny(handleOrders, function()
-                    while true do
-                        if read() == "toggle" then
-                            toggleRednet()
-                            break
-                        end
-                    end
-                end)
-            end
         elseif command == "add" then
             print("Enter item name:")
             local name = read()
@@ -157,6 +148,10 @@ local function main()
             break
         else
             print("Unknown command. Please try again.")
+        end
+
+        if rednetActive then
+            handleOrders()
         end
     end
 end
