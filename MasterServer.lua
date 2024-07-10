@@ -3,7 +3,7 @@
 local itemDatabaseFile = "items.txt"
 local ordersFile = "orders.txt"
 local rednetActive = false
-local rednetSide = "right"
+local rednetSide = "top"
 
 -- Function to load items from file
 local function loadItems()
@@ -124,7 +124,7 @@ end
 -- Function to handle user input
 local function handleUserInput()
     while true do
-        print("Commands: toggle, add, remove, check, stock, exit")
+        print("Commands: toggle, add, remove, orders, stock")
         local command = read()
         
         if command == "toggle" then
@@ -139,7 +139,7 @@ local function handleUserInput()
             print("Enter item name to remove:")
             local name = read()
             removeItem(name)
-        elseif command == "check" then
+        elseif command == "orders" then
             checkOrders()
         elseif command == "stock" then
             checkStock()
