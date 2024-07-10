@@ -47,12 +47,12 @@ end
 local function toggleRednet()
     if rednetActive then
         stopHandlingOrders = true
-        rednet.close("right")
+        rednet.close("top")
         rednetActive = false
         print("Rednet connection stopped.")
     else
         stopHandlingOrders = false
-        rednet.open("right")
+        rednet.open("top")
         rednetActive = true
         print("Rednet connection started.")
         parallel.waitForAny(handleOrders, function()
